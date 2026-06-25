@@ -17,7 +17,7 @@
       overflow: hidden;
       background: #050713;
       color: #f8fbff;
-      font-family: "Courier New", monospace;
+      font-family: Impact, Haettenschweiler, "Arial Narrow Bold", "Trebuchet MS", sans-serif;
     }
 
     body {
@@ -55,8 +55,10 @@
       padding: 0 18px;
       color: white;
       font-size: clamp(16px, 4vw, 28px);
+      font-weight: 900;
       line-height: 1;
-      text-shadow: 0 2px 0 #000, 0 0 12px rgba(255, 255, 255, 0.55);
+      text-transform: uppercase;
+      text-shadow: 0 3px 0 #11131f, 0 0 12px rgba(255, 207, 52, 0.65);
       pointer-events: none;
       user-select: none;
     }
@@ -89,11 +91,13 @@
       font-size: clamp(24px, 7vw, 44px);
       letter-spacing: 0;
       line-height: 0.95;
+      text-shadow: 0 3px 0 #11131f, 0 0 20px rgba(255, 207, 52, 0.4);
     }
 
     p {
       margin: 0 0 16px;
       font-size: clamp(13px, 3.2vw, 18px);
+      font-family: "Trebuchet MS", Arial, sans-serif;
       line-height: 1.45;
     }
 
@@ -104,7 +108,7 @@
       border-radius: 6px;
       background: #ffcf34;
       color: #11131f;
-      font: 700 clamp(16px, 4vw, 20px) "Courier New", monospace;
+      font: 900 clamp(16px, 4vw, 20px) Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
       cursor: pointer;
       box-shadow: 0 4px 0 #b56a00, 0 0 18px rgba(255, 207, 52, 0.35);
     }
@@ -156,6 +160,7 @@
     let enemyBullets;
     let enemies;
     let particles;
+    let floatTexts;
     let score;
     let lives;
     let bulletCooldown;
@@ -185,6 +190,7 @@
       enemyBullets = [];
       enemies = [];
       particles = [];
+      floatTexts = [];
       score = 0;
       lives = 3;
       wave = 0;
@@ -367,7 +373,7 @@
             bullet.hit = true;
             enemy.alive = false;
             score += 10;
-            burst(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, enemy.color);
+            enemyExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, enemy.color);
             updateHud();
             break;
           }
@@ -405,7 +411,7 @@
       if (playerInvulnerable > 0) return;
       lives -= 1;
       updateHud();
-      burst(player.x, player.y - 20, "#ffcf34");
+      burst(player.x, player.y - 20, "#ffcf34", 22);
       if (lives <= 0) {
         endGame("GAME OVER", `Final score: ${score}`);
         return;
@@ -417,16 +423,52 @@
       playerInvulnerable = 1.25;
     }
 
-    function burst(x, y, color) {
-      for (let i = 0; i < 16; i += 1) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = 80 + Math.random() * 180;
+    function enemyExplosion(x, y, color) {
+      burst(x, y, color, 36);
+      particles.push({
+        type: "ring",
+        x,
+        y,
+        radius: 8,
+        maxRadius: 58,
+        life: 0.38,
+        maxLife: 0.38,
+        color
+      });
+      for (let i = 0; i < 9; i += 1) {
         particles.push({
+          type: "smoke",
+          x: x + randomBetween(-12, 12),
+          y: y + randomBetween(-10, 10),
+          vx: randomBetween(-18, 18),
+          vy: randomBetween(-24, 8),
+          size: randomBetween(12, 24),
+          life: randomBetween(0.48, 0.78),
+          maxLife: 0.78
+        });
+      }
+      floatTexts.push({
+        x,
+        y: y - 18,
+        text: "+10",
+        life: 0.62,
+        maxLife: 0.62
+      });
+    }
+
+    function burst(x, y, color, count) {
+      for (let i = 0; i < count; i += 1) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 95 + Math.random() * 250;
+        particles.push({
+          type: "spark",
           x,
           y,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
-          life: 0.42,
+          size: randomBetween(3, 8),
+          life: randomBetween(0.28, 0.58),
+          maxLife: 0.58,
           color
         });
       }
@@ -434,11 +476,25 @@
 
     function updateParticles(dt) {
       for (const particle of particles) {
-        particle.x += particle.vx * dt;
-        particle.y += particle.vy * dt;
+        if (particle.type === "ring") {
+          const progress = 1 - particle.life / particle.maxLife;
+          particle.radius = particle.maxRadius * progress;
+        } else {
+          particle.x += particle.vx * dt;
+          particle.y += particle.vy * dt;
+          if (particle.type === "smoke") {
+            particle.size += 10 * dt;
+          }
+        }
         particle.life -= dt;
       }
       particles = particles.filter((particle) => particle.life > 0);
+
+      for (const text of floatTexts) {
+        text.y -= 46 * dt;
+        text.life -= dt;
+      }
+      floatTexts = floatTexts.filter((text) => text.life > 0);
     }
 
     function draw() {
@@ -449,6 +505,7 @@
       drawPlayer();
       drawEnemyBullets();
       drawParticles();
+      drawFloatTexts();
     }
 
     function drawBackground() {
@@ -536,11 +593,53 @@
     function drawParticles() {
       if (!particles) return;
       for (const particle of particles) {
-        ctx.globalAlpha = Math.max(0, particle.life / 0.42);
-        ctx.fillStyle = particle.color;
-        ctx.fillRect(particle.x - 3, particle.y - 3, 6, 6);
+        const alpha = Math.max(0, particle.life / particle.maxLife);
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        if (particle.type === "ring") {
+          ctx.strokeStyle = particle.color;
+          ctx.shadowColor = particle.color;
+          ctx.shadowBlur = 20;
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+          ctx.stroke();
+        } else if (particle.type === "smoke") {
+          ctx.fillStyle = "rgba(35, 37, 48, 0.7)";
+          ctx.beginPath();
+          ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.translate(particle.x, particle.y);
+          ctx.rotate(Math.atan2(particle.vy, particle.vx));
+          ctx.fillStyle = particle.color;
+          ctx.shadowColor = particle.color;
+          ctx.shadowBlur = 12;
+          ctx.fillRect(-particle.size / 2, -particle.size / 2, particle.size * 1.8, particle.size);
+        }
+        ctx.restore();
       }
       ctx.globalAlpha = 1;
+    }
+
+    function drawFloatTexts() {
+      if (!floatTexts) return;
+      for (const text of floatTexts) {
+        const alpha = Math.max(0, text.life / text.maxLife);
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.font = "900 30px Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = "#11131f";
+        ctx.fillStyle = "#ffcf34";
+        ctx.shadowColor = "rgba(255, 207, 52, 0.75)";
+        ctx.shadowBlur = 14;
+        ctx.strokeText(text.text, text.x, text.y);
+        ctx.fillText(text.text, text.x, text.y);
+        ctx.restore();
+      }
     }
 
     function updateHud() {
