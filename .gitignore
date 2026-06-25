@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+
+# Godot
+.godot/
+*.tmp
+*.translation
+
+# Builds
+build/
+dist/
+exports/
