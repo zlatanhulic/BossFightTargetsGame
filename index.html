@@ -129,7 +129,7 @@
     <section id="overlay" class="overlay">
       <div class="panel">
         <h1>SPACE TARGETS</h1>
-        <p>Move with arrow keys or drag. Shoot with space or tap. Clear each wave before the targets reach you.</p>
+        <p>Move with arrow keys or drag. Shoot with space or tap. Stop the targets before they pass you.</p>
         <button id="startButton" type="button">START</button>
       </div>
     </section>
@@ -164,8 +164,8 @@
     let score;
     let lives;
     let bulletCooldown;
-    let wave;
-    let waveTimer;
+    let spawnTimer;
+    let spawnedCount;
     let nextEnemyImageIndex;
     let playerInvulnerable;
     let running = false;
@@ -193,46 +193,36 @@
       floatTexts = [];
       score = 0;
       lives = 3;
-      wave = 0;
-      waveTimer = 0;
+      spawnTimer = 0;
+      spawnedCount = 0;
       nextEnemyImageIndex = 0;
       bulletCooldown = 0;
       playerInvulnerable = 0;
-      createEnemies();
+      for (let i = 0; i < 4; i += 1) {
+        spawnEnemy(-i * 96);
+      }
       updateHud();
     }
 
-    function createEnemies() {
-      wave += 1;
-      const cols = 3;
-      const rows = wave % 4 === 0 ? 3 : 2;
+    function spawnEnemy(yOffset) {
       const enemyW = 88;
       const enemyH = 88;
-      const gapX = 46;
-      const gapY = 30;
-      const startX = (W - cols * enemyW - (cols - 1) * gapX) / 2;
-      const startY = 82;
-
-      for (let row = 0; row < rows; row += 1) {
-        for (let col = 0; col < cols; col += 1) {
-          const image = enemyImages[nextEnemyImageIndex % enemyImages.length];
-          nextEnemyImageIndex += 1;
-          enemies.push({
-            x: startX + col * (enemyW + gapX),
-            y: startY + row * (enemyH + gapY),
-            width: enemyW,
-            height: enemyH,
-            image,
-            color: particleColor(nextEnemyImageIndex),
-            driftX: randomBetween(-8, 8),
-            speedY: randomBetween(9, 20) + Math.min(wave, 10) * 0.9,
-            shootTimer: randomBetween(1.6, 4.0),
-            shootEvery: randomBetween(3.2, 5.8),
-            alive: true
-          });
-        }
-      }
-      waveTimer = nextWaveDelay();
+      const image = enemyImages[nextEnemyImageIndex % enemyImages.length];
+      nextEnemyImageIndex += 1;
+      spawnedCount += 1;
+      enemies.push({
+        x: randomBetween(28, W - enemyW - 28),
+        y: -enemyH + yOffset,
+        width: enemyW,
+        height: enemyH,
+        image,
+        color: particleColor(nextEnemyImageIndex),
+        driftX: randomBetween(-12, 12),
+        speedY: randomBetween(12, 24) + Math.min(spawnedCount, 60) * 0.08,
+        shootTimer: randomBetween(1.4, 3.6),
+        shootEvery: randomBetween(3.0, 5.6),
+        alive: true
+      });
     }
 
     function startGame() {
@@ -283,19 +273,23 @@
       });
 
       playerInvulnerable = Math.max(0, playerInvulnerable - dt);
-      waveTimer -= dt;
+      spawnTimer -= dt;
       updateEnemies(dt);
       updateParticles(dt);
       checkCollisions();
+      spawnEnemies(dt);
 
       const aliveCount = enemies.filter((enemy) => enemy.alive).length;
       if (aliveCount === 0) {
-        score += 250;
-        enemies = [];
-        createEnemies();
-      } else if (waveTimer <= 0 && aliveCount < 12) {
-        createEnemies();
+        spawnEnemy(0);
       }
+    }
+
+    function spawnEnemies(dt) {
+      const aliveCount = enemies.filter((enemy) => enemy.alive).length;
+      if (aliveCount >= 8 || spawnTimer > 0) return;
+      spawnEnemy(0);
+      spawnTimer = nextSpawnDelay();
     }
 
     function updateEnemies(dt) {
@@ -343,7 +337,7 @@
       const dx = targetX - startX;
       const dy = targetY - startY;
       const length = Math.hypot(dx, dy) || 1;
-      const speed = randomBetween(125, 190) + Math.min(wave, 8) * 5;
+      const speed = randomBetween(125, 190) + Math.min(spawnedCount, 60) * 0.8;
       enemyBullets.push({
         x: startX,
         y: startY,
@@ -659,8 +653,8 @@
       return min + Math.random() * (max - min);
     }
 
-    function nextWaveDelay() {
-      return Math.max(4.2, 8.5 - Math.min(wave, 10) * 0.25);
+    function nextSpawnDelay() {
+      return Math.max(0.75, 1.65 - Math.min(spawnedCount, 40) * 0.015);
     }
 
     function drawContainedImage(image, x, y, width, height) {
