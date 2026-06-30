@@ -34,6 +34,17 @@
       background: #0b1116;
       overflow: hidden;
       box-shadow: 0 0 80px #000;
+      border: 5px solid #e9cf91;
+    }
+
+    .game-shell::after {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      z-index: 20;
+      border: 2px solid rgba(28, 13, 25, .7);
+      box-shadow: inset 0 0 0 2px rgba(255, 210, 80, .2);
+      pointer-events: none;
     }
 
     canvas {
@@ -62,6 +73,38 @@
       text-shadow: 0 3px 0 #11131f, 0 0 12px rgba(255, 207, 52, 0.65);
       pointer-events: none;
       user-select: none;
+      z-index: 3;
+    }
+
+    .hud span {
+      padding: 8px 12px;
+      border: 2px solid #ffd33d;
+      border-radius: 5px;
+      background: #15101f;
+      box-shadow: 3px 3px 0 #ca361d;
+      transform: skew(-5deg);
+    }
+
+    .sound-toggle {
+      position: absolute;
+      top: 62px;
+      right: 18px;
+      z-index: 6;
+      width: auto;
+      min-height: 32px;
+      padding: 5px 10px;
+      border: 2px solid #ffd33d;
+      border-radius: 4px;
+      background: #15101f;
+      color: #fff;
+      font: 900 12px "Trebuchet MS", sans-serif;
+      letter-spacing: 1px;
+      box-shadow: 2px 2px 0 #ca361d;
+      transform: none;
+    }
+
+    .sound-toggle:hover {
+      transform: translateY(-1px);
     }
 
     .overlay {
@@ -72,7 +115,7 @@
       padding: 28px;
       background:
         linear-gradient(180deg, rgba(4, 8, 10, 0.18), rgba(3, 6, 8, 0.82)),
-        url("assets/city-background.png") center / cover;
+        url("assets/city-background-retro.png") center / cover;
       text-align: center;
       z-index: 5;
       transition: opacity .35s ease, visibility .35s ease;
@@ -88,10 +131,10 @@
     .panel {
       width: min(100%, 380px);
       padding: 28px 22px 22px;
-      border: 1px solid rgba(255, 190, 69, 0.65);
-      border-radius: 2px;
-      background: linear-gradient(145deg, rgba(12, 18, 19, .94), rgba(29, 22, 15, .88));
-      box-shadow: 0 18px 60px #000, inset 0 0 35px rgba(255, 145, 26, .08);
+      border: 4px solid #f7ce3d;
+      border-radius: 7px;
+      background: radial-gradient(circle at 50% 0, rgba(77, 32, 111, .96), rgba(12, 8, 27, .97) 65%);
+      box-shadow: 0 18px 60px #000, 6px 6px 0 #c83222, inset 0 0 35px rgba(102, 210, 255, .18);
       clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
       animation: panelIn .65s cubic-bezier(.16, 1, .3, 1) both;
     }
@@ -141,15 +184,42 @@
       display: none;
     }
 
+    .overlay.ending .promo-title,
+    .overlay.ending .promo-subtitle {
+      display: none;
+    }
+
     .overlay.ending .panel h1 {
       display: block;
     }
 
     .eyebrow {
       margin-bottom: 9px;
-      color: #ffad32;
-      font: 800 11px "Trebuchet MS", sans-serif;
-      letter-spacing: 5px;
+      color: #fff13b;
+      font: 900 13px "Trebuchet MS", sans-serif;
+      font-style: italic;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 0 #13101a;
+    }
+
+    .promo-title {
+      margin: 2px -12px 14px;
+      color: #ffd438;
+      font-size: clamp(37px, 9vw, 55px);
+      font-style: italic;
+      line-height: .83;
+      letter-spacing: -1px;
+      transform: rotate(-2deg);
+      -webkit-text-stroke: 2px #a92819;
+      text-shadow: 4px 5px 0 #100b16, 0 0 20px rgba(255, 49, 198, .55);
+    }
+
+    .promo-subtitle {
+      margin: -5px 0 14px;
+      color: #fff;
+      font: 900 14px "Trebuchet MS", sans-serif;
+      font-style: italic;
+      text-shadow: 2px 2px 0 #000;
     }
 
     .title-word {
@@ -172,9 +242,12 @@
     }
 
     .mission-line {
-      color: #d6d3c8;
-      border-top: 1px solid rgba(255,255,255,.14);
+      color: #fff4b0;
+      border-top: 2px solid #e43b72;
       padding-top: 15px;
+      font-weight: 800;
+      font-style: italic;
+      text-shadow: 1px 2px 0 #000;
     }
 
     p {
@@ -190,12 +263,13 @@
       border: 0;
       border: 1px solid #ffe2a3;
       border-radius: 2px;
-      background: linear-gradient(#ffbb42, #db690e);
+      background: linear-gradient(#fff23c, #f39a20);
       color: #201208;
       font: 900 clamp(16px, 4vw, 20px) Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
       cursor: pointer;
       letter-spacing: 2px;
-      box-shadow: 0 5px 0 #713109, 0 0 22px rgba(255, 144, 31, .42);
+      transform: skew(-4deg);
+      box-shadow: 0 5px 0 #b82d20, 0 0 22px rgba(255, 61, 192, .42);
       transition: transform .15s ease, filter .15s ease;
     }
 
@@ -241,11 +315,13 @@
       left: 0;
       right: 0;
       z-index: 4;
-      color: #fff4d2;
+      color: #ffe838;
       text-align: center;
       font-size: 54px;
       letter-spacing: 4px;
-      text-shadow: 0 5px 0 #792a0d, 0 0 25px #ff8d20;
+      font-style: italic;
+      -webkit-text-stroke: 2px #ad2c1d;
+      text-shadow: 4px 5px 0 #100b16, 0 0 25px #f52dbb;
       opacity: 0;
       pointer-events: none;
     }
@@ -268,6 +344,16 @@
       24%, 72% { opacity: 1; transform: scale(1); filter: blur(0); }
       100% { opacity: 0; transform: scale(.72); letter-spacing: 15px; }
     }
+
+    @media (max-height: 720px) {
+      .overlay { padding: 14px; }
+      .panel { padding: 14px; }
+      .promo-title { font-size: 34px; margin-bottom: 9px; }
+      .promo-subtitle { font-size: 11px; margin-bottom: 9px; }
+      .title-logo { max-height: 115px; object-fit: cover; }
+      .title-logo-link { margin-bottom: 9px; }
+      .mission-line { margin-bottom: 9px; padding-top: 9px; }
+    }
   </style>
 </head>
 <body>
@@ -277,15 +363,18 @@
       <span id="score">SCORE: 0</span>
       <span id="lives">LIVES: 3</span>
     </div>
+    <button id="soundToggle" class="sound-toggle" type="button" aria-pressed="false">SOUND: ON</button>
     <section id="overlay" class="overlay">
       <div class="panel">
-        <div class="eyebrow">CITY DEFENSE COMMAND</div>
+        <div class="eyebrow">BOSS FIGHT TARGETS PRESENTS:</div>
+        <div class="promo-title">INFLATABLE<br>INVASION!</div>
+        <div class="promo-subtitle">THEY’RE BOUNCY. THEY’RE ANGRY. THEY’RE HERE!</div>
         <a class="title-logo-link" href="https://bossfighttargets.com" target="_blank" rel="noopener noreferrer">
           <img class="title-logo" src="assets/boss-fight-targets-screen.jpg" alt="Visit Boss Fight Targets">
           <span>VISIT BOSSFIGHTTARGETS.COM ↗</span>
         </a>
         <h1 data-title="CITY INVADERS">CITY INVADERS</h1>
-        <p class="mission-line">The city is under siege. Move with arrow keys or drag. Your tank fires automatically—stop the invaders before they break the line.</p>
+        <p class="mission-line">Earth’s only defense: one really sharp tank! Move with arrow keys or drag and stop the invaders before they break the line.</p>
         <button id="startButton" type="button">DEPLOY TANK</button>
       </div>
     </section>
@@ -302,11 +391,12 @@
     const startButton = document.getElementById("startButton");
     const transition = document.getElementById("transition");
     const battleCallout = document.getElementById("battleCallout");
+    const soundToggle = document.getElementById("soundToggle");
 
     const W = canvas.width;
     const H = canvas.height;
     const assets = {
-      background: loadImage("assets/city-background.png"),
+      background: loadImage("assets/city-background-retro.png"),
       tank: loadImage("assets/player-tank.png")
     };
     const enemyImages = Array.from({ length: 21 }, (_, index) => {
@@ -335,11 +425,78 @@
     let starting = false;
     let shake = 0;
     let muzzleFlash = 0;
+    let audioContext;
+    let soundEnabled = true;
 
     function loadImage(src) {
       const image = new Image();
       image.src = src;
       return image;
+    }
+
+    function initAudio() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+    }
+
+    function tone(frequency, duration, options = {}) {
+      if (!soundEnabled || !audioContext) return;
+      const now = audioContext.currentTime;
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      oscillator.type = options.type || "square";
+      oscillator.frequency.setValueAtTime(frequency, now);
+      oscillator.frequency.exponentialRampToValueAtTime(Math.max(30, options.endFrequency || frequency), now + duration);
+      gain.gain.setValueAtTime(options.volume || 0.035, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      oscillator.connect(gain).connect(audioContext.destination);
+      oscillator.start(now);
+      oscillator.stop(now + duration);
+    }
+
+    function noise(duration, volume = 0.06) {
+      if (!soundEnabled || !audioContext) return;
+      const length = Math.floor(audioContext.sampleRate * duration);
+      const buffer = audioContext.createBuffer(1, length, audioContext.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < length; i += 1) {
+        data[i] = (Math.random() * 2 - 1) * (1 - i / length);
+      }
+      const source = audioContext.createBufferSource();
+      const gain = audioContext.createGain();
+      const filter = audioContext.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = 850;
+      gain.gain.value = volume;
+      source.buffer = buffer;
+      source.connect(filter).connect(gain).connect(audioContext.destination);
+      source.start();
+    }
+
+    function playSound(name) {
+      if (name === "shoot") {
+        tone(190, .07, { endFrequency: 90, type: "sawtooth", volume: .018 });
+      } else if (name === "hit") {
+        tone(620, .055, { endFrequency: 350, volume: .025 });
+      } else if (name === "explosion") {
+        noise(.22, .07);
+        tone(120, .24, { endFrequency: 38, type: "sawtooth", volume: .045 });
+      } else if (name === "damage") {
+        noise(.32, .08);
+        tone(170, .36, { endFrequency: 55, type: "square", volume: .05 });
+      } else if (name === "wave") {
+        tone(330, .18, { endFrequency: 520, type: "triangle", volume: .04 });
+        setTimeout(() => tone(520, .24, { endFrequency: 780, type: "triangle", volume: .04 }), 130);
+      } else if (name === "start") {
+        tone(110, .42, { endFrequency: 520, type: "sawtooth", volume: .05 });
+      } else if (name === "gameover") {
+        tone(260, .35, { endFrequency: 170, type: "triangle", volume: .05 });
+        setTimeout(() => tone(170, .55, { endFrequency: 65, type: "sawtooth", volume: .045 }), 260);
+      }
     }
 
     function resetGame() {
@@ -410,6 +567,8 @@
 
     function startGame() {
       if (starting) return;
+      initAudio();
+      playSound("start");
       starting = true;
       transition.className = "transition active";
       setTimeout(() => {
@@ -429,6 +588,7 @@
 
     function endGame(title, message) {
       running = false;
+      playSound("gameover");
       overlay.classList.add("ending");
       setAnimatedTitle(title);
       overlay.querySelector("p").textContent = message;
@@ -535,6 +695,7 @@
         speed: 660
       });
       muzzleFlash = 0.055;
+      playSound("shoot");
       bulletCooldown = 0.2;
     }
 
@@ -582,6 +743,7 @@
             } else {
               score += 2;
               hitSpark(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, enemy.color);
+              playSound("hit");
             }
             updateHud();
             break;
@@ -622,6 +784,7 @@
       updateHud();
       burst(player.x, player.y - 20, "#ffcf34", 22);
       shake = 2;
+      playSound("damage");
       if (lives <= 0) {
         endGame("GAME OVER", `Final score: ${score}`);
         return true;
@@ -637,6 +800,7 @@
     function enemyExplosion(x, y, color, points) {
       burst(x, y, color, 36);
       shake = Math.max(shake, 0.65);
+      playSound("explosion");
       particles.push({
         type: "ring",
         x,
@@ -941,6 +1105,7 @@
       battleCallout.classList.remove("show");
       void battleCallout.offsetWidth;
       battleCallout.classList.add("show");
+      playSound("wave");
     }
 
     function rectsOverlap(ax, ay, aw, ah, bx, by, bw, bh) {
@@ -1037,6 +1202,15 @@
     });
 
     startButton.addEventListener("click", startGame);
+    soundToggle.addEventListener("click", () => {
+      soundEnabled = !soundEnabled;
+      soundToggle.textContent = soundEnabled ? "SOUND: ON" : "SOUND: OFF";
+      soundToggle.setAttribute("aria-pressed", String(!soundEnabled));
+      if (soundEnabled) {
+        initAudio();
+        tone(440, .12, { endFrequency: 660, type: "triangle", volume: .04 });
+      }
+    });
     setAnimatedTitle("CITY INVADERS");
     Promise.all([...Object.values(assets), ...enemyImages].map((image) => image.decode().catch(() => null))).then(draw);
   </script>
